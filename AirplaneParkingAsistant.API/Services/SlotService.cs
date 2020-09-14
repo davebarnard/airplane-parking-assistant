@@ -1,17 +1,18 @@
 ﻿using AirplaneParkingAsistant.API.Exceptions;
 using AirplaneParkingAsistant.API.Models;
+using AirplaneParkingAsistant.API.Providers;
 using AirplaneParkingAsistant.API.Repositories;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AirplaneParkingAsistant.API.Providers
+namespace AirplaneParkingAsistant.API.Service
 {
-    public class SlotProvider : ISlotProvider
+    public class SlotService : ISlotService
     {
         private readonly ISlotScoreProvider _scoreProvider;
         private readonly ISlotRepository _slotRepository;
 
-        public SlotProvider(ISlotScoreProvider scoreProvider, ISlotRepository slotRepository)
+        public SlotService(ISlotScoreProvider scoreProvider, ISlotRepository slotRepository)
         {
             _scoreProvider = scoreProvider;
             _slotRepository = slotRepository;
@@ -28,7 +29,7 @@ namespace AirplaneParkingAsistant.API.Providers
             return scoredSlots.OrderByDescending(x => x.Score).First().Slot;
         }
 
-        public async Task ReserveSlot(Slot slot, Airplane airplane)
+        public async Task ReserveSlot(ReservedSlot slot, Airplane airplane)
         {
             await _slotRepository.SaveAirplaneToSlot(slot, airplane).ConfigureAwait(false);
         }

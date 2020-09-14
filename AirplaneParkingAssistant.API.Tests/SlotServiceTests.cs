@@ -2,6 +2,7 @@ using AirplaneParkingAsistant.API.Exceptions;
 using AirplaneParkingAsistant.API.Models;
 using AirplaneParkingAsistant.API.Providers;
 using AirplaneParkingAsistant.API.Repositories;
+using AirplaneParkingAsistant.API.Service;
 using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 namespace AirplaneParkingAssistant.API.Tests
 {
     [TestFixture]
-    public class SlotProviderTests
+    public class SlotServiceTests
     {
         private Mock<ISlotScoreProvider> _mockScoreProvider;
         private Mock<ISlotRepository> _mockSlotRepository;
@@ -29,7 +30,7 @@ namespace AirplaneParkingAssistant.API.Tests
             var airplane = new Airplane();
             var slots = Enumerable.Empty<Slot>();
             _mockSlotRepository.Setup(r => r.GetAvailableSlots()).ReturnsAsync(slots);
-            var sut = new SlotProvider(_mockScoreProvider.Object, _mockSlotRepository.Object);
+            var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
             Assert.ThrowsAsync<NoAvailableSlotsException>( async () => await sut.GetRecommendedSlot(airplane));
         }
@@ -43,7 +44,7 @@ namespace AirplaneParkingAssistant.API.Tests
             _mockSlotRepository.Setup(r => r.GetAvailableSlots()).ReturnsAsync(slots);
             _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot, airplane)).Returns(new ScoredSlot { Score = 0, Slot = emptySlot });
 
-            var sut = new SlotProvider(_mockScoreProvider.Object, _mockSlotRepository.Object);
+            var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
             Assert.ThrowsAsync<NoAppropriateAvailableSlotsException>(async () => await sut.GetRecommendedSlot(airplane));
         }
@@ -57,7 +58,7 @@ namespace AirplaneParkingAssistant.API.Tests
             _mockSlotRepository.Setup(r => r.GetAvailableSlots()).ReturnsAsync(slots);
             _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot, airplane)).Returns(new ScoredSlot { Score = 1, Slot = emptySlot });
 
-            var sut = new SlotProvider(_mockScoreProvider.Object, _mockSlotRepository.Object);
+            var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
             var result = await sut.GetRecommendedSlot(airplane);
 
@@ -77,7 +78,7 @@ namespace AirplaneParkingAssistant.API.Tests
             _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot2, airplane)).Returns(new ScoredSlot { Score = 5, Slot = emptySlot2 });
             _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot3, airplane)).Returns(new ScoredSlot { Score = 1, Slot = emptySlot3 });
 
-            var sut = new SlotProvider(_mockScoreProvider.Object, _mockSlotRepository.Object);
+            var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
             var result = await sut.GetRecommendedSlot(airplane);
 

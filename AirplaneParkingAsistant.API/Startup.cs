@@ -1,5 +1,6 @@
 using AirplaneParkingAsistant.API.Providers;
 using AirplaneParkingAsistant.API.Repositories;
+using AirplaneParkingAsistant.API.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -21,8 +22,9 @@ namespace AirplaneParkingAsistant.API
         public static void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddSwaggerGen();
             services.AddScoped<ISlotRepository, SlotRepository>();
-            services.AddScoped<ISlotProvider, SlotProvider>();
+            services.AddScoped<ISlotService, SlotService>();
             services.AddTransient<ISlotScoreProvider, SlotSizeScoreProvider>();
         }
 
@@ -32,6 +34,11 @@ namespace AirplaneParkingAsistant.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Airplane Parking API");
+                });
             }
 
             app.UseHttpsRedirection();
