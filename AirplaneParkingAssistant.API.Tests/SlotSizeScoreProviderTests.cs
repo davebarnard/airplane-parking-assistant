@@ -15,7 +15,7 @@ namespace AirplaneParkingAssistant.API.Tests
         {
             var airplane = new Airplane { AirplaneId = It.IsAny<int>(), Type = new AirplaneType { Name = "777", Size = 5 } };
             var slot = new Slot { IsEmpty = true, Size = 1, SlotId = It.IsAny<int>() };
-            var expected = new ScoredSlot { Score = 0, Slot = slot };
+            var expected = new ScoredSlot { Score = 0, SlotId = slot.SlotId, Size = slot.Size, IsEmpty = true };
             var sut = new SlotSizeScoreProvider();
 
             var result = sut.ScoreSlot(slot, airplane);
@@ -32,7 +32,7 @@ namespace AirplaneParkingAssistant.API.Tests
         {
             var airplane = new Airplane { AirplaneId = It.IsAny<int>(), Type = new AirplaneType { Name = "777", Size = 5 } };
             var slot = new Slot { IsEmpty = true, Size = 10, SlotId = It.IsAny<int>() };
-            var expected = new ScoredSlot { Score = 1, Slot = slot };
+            var expected = new ScoredSlot { Score = 1, SlotId = slot.SlotId, Size = slot.Size, IsEmpty = true };
             var sut = new SlotSizeScoreProvider();
 
             var result = sut.ScoreSlot(slot, airplane);
@@ -49,7 +49,7 @@ namespace AirplaneParkingAssistant.API.Tests
         {
             var airplane = new Airplane { AirplaneId = It.IsAny<int>(), Type = new AirplaneType { Name = "777", Size = 7 } };
             var slot = new Slot { IsEmpty = true, Size = 7, SlotId = It.IsAny<int>() };
-            var expected = new ScoredSlot { Score = 5, Slot = slot };
+            var expected = new ScoredSlot { Score = 5, SlotId = slot.SlotId, Size = slot.Size, IsEmpty = true };
             var sut = new SlotSizeScoreProvider();
 
             var result = sut.ScoreSlot(slot, airplane);

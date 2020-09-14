@@ -16,6 +16,11 @@ namespace AirplaneParkingAsistant.API.Repositories
             throw new System.NotImplementedException();
         }
 
+        public Task<bool> IsSlotEmpty(int slotId)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Task SaveAirplaneToSlot(ReservedSlot slot, Airplane airplane)
         {
             throw new System.NotImplementedException();

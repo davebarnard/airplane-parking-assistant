@@ -1,8 +1,7 @@
 ﻿namespace AirplaneParkingAsistant.API.Models
 {
-    public class ScoredSlot
+    public class ScoredSlot : Slot
     {
-        public Slot Slot { get; set; }
         public int Score { get; set; }
     }
 }

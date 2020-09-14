@@ -2,9 +2,9 @@
 
 namespace AirplaneParkingAsistant.API.Models
 {
-    public class ReservedSlot
+    public class ReservedSlot : Slot
     {
-        public Slot Slot { get; set; }
+        public DateTime StartTime { get; set; }
         public DateTime ExpiryTime { get; set; }
     }
 }

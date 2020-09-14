@@ -8,6 +8,7 @@ namespace AirplaneParkingAsistant.API.Repositories
     {
         Task<IEnumerable<Slot>> GetAvailableSlots();
         Task AddSlot(Slot slot);
+        Task<bool> IsSlotEmpty(int slotId);
         Task SaveAirplaneToSlot(ReservedSlot slot, Airplane airplane);
     }
 }

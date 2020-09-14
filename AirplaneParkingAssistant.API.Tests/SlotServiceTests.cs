@@ -5,6 +5,7 @@ using AirplaneParkingAsistant.API.Repositories;
 using AirplaneParkingAsistant.API.Service;
 using Moq;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,40 +28,48 @@ namespace AirplaneParkingAssistant.API.Tests
         [Test]
         public void GetRecommendedSlot_WhenNoAvailableSlot_ThrowsNoAvailableSlotsException()
         {
+            var startTime = DateTime.Now;
+            var duration = 9;
             var airplane = new Airplane();
             var slots = Enumerable.Empty<Slot>();
             _mockSlotRepository.Setup(r => r.GetAvailableSlots()).ReturnsAsync(slots);
             var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
-            Assert.ThrowsAsync<NoAvailableSlotsException>( async () => await sut.GetRecommendedSlot(airplane));
+            Assert.ThrowsAsync<NoAvailableSlotsException>( async () 
+                => await sut.GetRecommendedSlot(startTime, duration, airplane));
         }
 
         [Test]
         public void GetRecommendedSlot_WhenNoAppropriateAvailableSlot_ThrowsNoAppropriateAvailableSlotsException()
         {
+            var startTime = DateTime.Now;
+            var duration = 9;
             var airplane = new Airplane { AirplaneId = It.IsAny<int>(), Type = new AirplaneType { Name = "777", Size = 5 } };
-            var emptySlot = new Slot { IsEmpty = true, Size = 1, SlotId = It.IsAny<int>() };
+            var emptySlot = new ScoredSlot { IsEmpty = true, Size = 1, SlotId = It.IsAny<int>(), Score = 0 };
             var slots = new List<Slot> {emptySlot};
             _mockSlotRepository.Setup(r => r.GetAvailableSlots()).ReturnsAsync(slots);
-            _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot, airplane)).Returns(new ScoredSlot { Score = 0, Slot = emptySlot });
+            _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot, airplane)).Returns(emptySlot);
 
             var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
-            Assert.ThrowsAsync<NoAppropriateAvailableSlotsException>(async () => await sut.GetRecommendedSlot(airplane));
+            Assert.ThrowsAsync<NoAppropriateAvailableSlotsException>(async ()
+                => await sut.GetRecommendedSlot(startTime, duration, airplane));
         }
 
         [Test]
         public async Task GetRecommendedSlot_WhenOneAppropriateAvailableSlot_ReturnSlot()
         {
+            var startTime = DateTime.Now;
+            var duration = 9;
             var airplane = new Airplane { AirplaneId = It.IsAny<int>(), Type = new AirplaneType { Name = "777", Size = 5 } };
-            var emptySlot = new Slot { IsEmpty = true, Size = 1, SlotId = It.IsAny<int>() };
+            var emptySlot = new ScoredSlot { IsEmpty = true, Size = 1, SlotId = It.IsAny<int>(), Score = 1 };
             var slots = new List<Slot> { emptySlot };
             _mockSlotRepository.Setup(r => r.GetAvailableSlots()).ReturnsAsync(slots);
-            _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot, airplane)).Returns(new ScoredSlot { Score = 1, Slot = emptySlot });
+            _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot, airplane)).Returns(emptySlot);
 
             var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
-            var result = await sut.GetRecommendedSlot(airplane);
+            var result = await sut.GetRecommendedSlot(startTime, duration, airplane);
 
             Assert.AreEqual(emptySlot, result);
         }
@@ -68,21 +77,35 @@ namespace AirplaneParkingAssistant.API.Tests
         [Test]
         public async Task GetRecommendedSlot_WhenMultipleAppropriateAvailableSlots_ReturnSlotWithHighestScore()
         {
+            var startTime = DateTime.Now;
+            var duration = 9;
             var airplane = new Airplane { AirplaneId = It.IsAny<int>(), Type = new AirplaneType { Name = "777", Size = 5 } };
-            var emptySlot1 = new Slot { IsEmpty = true, Size = 1, SlotId = It.IsAny<int>() };
-            var emptySlot2 = new Slot { IsEmpty = true, Size = 5, SlotId = It.IsAny<int>() };
-            var emptySlot3 = new Slot { IsEmpty = true, Size = 10, SlotId = It.IsAny<int>() };
-            var slots = new List<Slot> { emptySlot1, emptySlot2, emptySlot3 };
+            var emptySlot1 = new ScoredSlot { IsEmpty = true, Size = 1, SlotId = It.IsAny<int>(), Score = 0 };
+            var emptySlot2 = new ScoredSlot { IsEmpty = true, Size = 5, SlotId = It.IsAny<int>(), Score = 5 };
+            var emptySlot3 = new ScoredSlot { IsEmpty = true, Size = 10, SlotId = It.IsAny<int>(), Score = 1 };
+            var slots = new List<ScoredSlot> { emptySlot1, emptySlot2, emptySlot3 };
             _mockSlotRepository.Setup(r => r.GetAvailableSlots()).ReturnsAsync(slots);
-            _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot1, airplane)).Returns(new ScoredSlot { Score = 0, Slot = emptySlot1 });
-            _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot2, airplane)).Returns(new ScoredSlot { Score = 5, Slot = emptySlot2 });
-            _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot3, airplane)).Returns(new ScoredSlot { Score = 1, Slot = emptySlot3 });
+            _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot1, airplane)).Returns(emptySlot1);
+            _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot2, airplane)).Returns(emptySlot2);
+            _mockScoreProvider.Setup(s => s.ScoreSlot(emptySlot3, airplane)).Returns(emptySlot3);
 
             var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
-            var result = await sut.GetRecommendedSlot(airplane);
+            var result = await sut.GetRecommendedSlot(startTime, duration, airplane);
 
             Assert.AreEqual(emptySlot2, result);
+        }
+
+        [Test]
+        public void ReserveSlot_WhenSlotAlreadyReserved_ThrowsSlotAlreadyReservedException()
+        {
+            var airplane = new Airplane();
+            var slotId = It.IsAny<int>();
+            var reservedSlot = new ReservedSlot { IsEmpty = true, Size = 1, SlotId = slotId, StartTime = DateTime.Now, ExpiryTime = DateTime.Now.AddHours(7) };
+            _mockSlotRepository.Setup(r => r.IsSlotEmpty(slotId)).ReturnsAsync(false);
+            var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
+
+            Assert.ThrowsAsync<SlotAlreadyReservedException>(async () => await sut.ReserveSlot(reservedSlot, airplane));
         }
     }
 }

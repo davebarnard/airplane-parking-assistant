@@ -20,7 +20,7 @@ namespace AirplaneParkingAsistant.API.Providers
                 score = 1;
             }
 
-            return new ScoredSlot { Slot = slot, Score = score };
+            return new ScoredSlot { SlotId = slot.SlotId, Size = slot.Size, IsEmpty = true, Score = score };
         }
     }
 }
