@@ -3,6 +3,7 @@ using AirplaneParkingAsistant.API.Models;
 using AirplaneParkingAsistant.API.Providers;
 using AirplaneParkingAsistant.API.Repositories;
 using AirplaneParkingAsistant.API.Service;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -35,8 +36,10 @@ namespace AirplaneParkingAssistant.API.Tests
             _mockSlotRepository.Setup(r => r.GetAvailableSlots()).ReturnsAsync(slots);
             var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
-            Assert.ThrowsAsync<NoAvailableSlotsException>( async () 
-                => await sut.GetRecommendedSlot(startTime, duration, airplane));
+            Func<Task> result = async () 
+                => await sut.GetRecommendedSlot(startTime, duration, airplane);
+
+            result.Should().ThrowAsync<NoAvailableSlotsException>();
         }
 
         [Test]
@@ -52,8 +55,10 @@ namespace AirplaneParkingAssistant.API.Tests
 
             var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
-            Assert.ThrowsAsync<NoAppropriateAvailableSlotsException>(async ()
-                => await sut.GetRecommendedSlot(startTime, duration, airplane));
+            Func<Task> result = async ()
+                => await sut.GetRecommendedSlot(startTime, duration, airplane);
+
+            result.Should().ThrowAsync<NoAppropriateAvailableSlotsException>();
         }
 
         [Test]
@@ -71,7 +76,7 @@ namespace AirplaneParkingAssistant.API.Tests
 
             var result = await sut.GetRecommendedSlot(startTime, duration, airplane);
 
-            Assert.AreEqual(emptySlot, result);
+            result.Should().Be(emptySlot);
         }
 
         [Test]
@@ -93,7 +98,7 @@ namespace AirplaneParkingAssistant.API.Tests
 
             var result = await sut.GetRecommendedSlot(startTime, duration, airplane);
 
-            Assert.AreEqual(emptySlot2, result);
+            result.Should().Be(emptySlot2);
         }
 
         [Test]
@@ -105,7 +110,9 @@ namespace AirplaneParkingAssistant.API.Tests
             _mockSlotRepository.Setup(r => r.IsSlotEmpty(slotId)).ReturnsAsync(false);
             var sut = new SlotService(_mockScoreProvider.Object, _mockSlotRepository.Object);
 
-            Assert.ThrowsAsync<SlotAlreadyReservedException>(async () => await sut.ReserveSlot(reservedSlot, airplane));
+            Func<Task> result = async () => await sut.ReserveSlot(reservedSlot, airplane);
+
+            result.Should().ThrowAsync<SlotAlreadyReservedException>();
         }
     }
 }
