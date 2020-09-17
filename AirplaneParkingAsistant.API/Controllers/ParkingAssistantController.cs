@@ -17,7 +17,7 @@ namespace AirplaneParkingAsistant.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetRecommendedSlot(GetRecommendedSlotRequest request)
+        public async Task<ActionResult> GetRecommendedSlot([FromQuery]GetRecommendedSlotRequest request)
         {
             return Ok(await _recommendedSlotProvider.GetRecommendedSlot(request.StartTime, 
                 request.Duration, 
