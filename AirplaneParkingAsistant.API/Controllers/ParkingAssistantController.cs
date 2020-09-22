@@ -21,16 +21,14 @@ namespace AirplaneParkingAsistant.API.Controllers
         {
             return Ok(await _recommendedSlotProvider.GetRecommendedSlot(request.StartTime, 
                 request.Duration, 
-                request.Airplane)
-                .ConfigureAwait(false));
+                request.Airplane));
         }
 
         [HttpPost]
         public async Task<ActionResult> ReserveSlot(ReserveSlotRequest request)
         {
             await _recommendedSlotProvider.ReserveSlot(request.Slot, 
-                request.Airplane)
-                .ConfigureAwait(false);
+                request.Airplane);
             return Ok();
         }
     }

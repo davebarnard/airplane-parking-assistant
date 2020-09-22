@@ -21,7 +21,7 @@ namespace AirplaneParkingAsistant.API.Service
 
         public async Task<Slot> GetRecommendedSlot(DateTime startTime, int duration, Airplane airplane)
         {
-            var slots = await _slotRepository.GetAvailableSlots().ConfigureAwait(false);
+            var slots = await _slotRepository.GetAvailableSlots();
             if (!slots.Any()) throw new NoAvailableSlotsException();
 
             var scoredSlots = slots.Select(x => _scoreProvider.ScoreSlot(x, airplane));
@@ -32,10 +32,10 @@ namespace AirplaneParkingAsistant.API.Service
 
         public async Task ReserveSlot(ReservedSlot slotReservation, Airplane airplane)
         {
-            var isAvailable = await _slotRepository.IsSlotEmpty(slotReservation.SlotId).ConfigureAwait(false);
+            var isAvailable = await _slotRepository.IsSlotEmpty(slotReservation.SlotId);
             if (!isAvailable) throw new SlotAlreadyReservedException();
 
-            await _slotRepository.SaveAirplaneToSlot(slotReservation, airplane).ConfigureAwait(false);
+            await _slotRepository.SaveAirplaneToSlot(slotReservation, airplane);
         }
     }
 }
